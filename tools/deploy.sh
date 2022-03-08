@@ -8,7 +8,7 @@
 
 set -eu
 
-PAGES_BRANCH="main"
+PAGES_BRANCH="gh-pages"
 
 SITE_DIR="_site"
 
