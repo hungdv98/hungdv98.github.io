@@ -1,0 +1,303 @@
+<!DOCTYPE html><html lang="en" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f7f7"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1b1b1e"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="viewport" content="width=device-width, user-scalable=no initial-scale=1, shrink-to-fit=no, viewport-fit=cover" ><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="Rust Toolchains and Project Structures" /><meta property="og:locale" content="en" /><meta name="description" content="Key outcomes: Choosing right configuration of Rust Cargo introduction and project structure Cargo build management Cargo dependencies Writing test scripts and doing automated unit and integration testing Automating the generation of technical document" /><meta property="og:description" content="Key outcomes: Choosing right configuration of Rust Cargo introduction and project structure Cargo build management Cargo dependencies Writing test scripts and doing automated unit and integration testing Automating the generation of technical document" /><link rel="canonical" href="https://hungdv98.github.io/posts/20260122/" /><meta property="og:url" content="https://hungdv98.github.io/posts/20260122/" /><meta property="og:site_name" content="Hungdv98" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2026-01-22T00:00:00+07:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Rust Toolchains and Project Structures" /><meta name="google-site-verification" content="google_meta_tag_verification" /> <script type="application/ld+json"> {"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2026-01-23T00:10:54+07:00","datePublished":"2026-01-22T00:00:00+07:00","description":"Key outcomes: Choosing right configuration of Rust Cargo introduction and project structure Cargo build management Cargo dependencies Writing test scripts and doing automated unit and integration testing Automating the generation of technical document","headline":"Rust Toolchains and Project Structures","mainEntityOfPage":{"@type":"WebPage","@id":"https://hungdv98.github.io/posts/20260122/"},"url":"https://hungdv98.github.io/posts/20260122/"}</script><title>Rust Toolchains and Project Structures | Hungdv98</title><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/site.webmanifest"><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico"><meta name="apple-mobile-web-app-title" content="Hungdv98"><meta name="application-name" content="Hungdv98"><meta name="msapplication-TileColor" content="#da532c"><meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.googleapis.com" ><link rel="dns-prefetch" href="https://fonts.googleapis.com" ><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://fonts.googleapis.com" ><link rel="dns-prefetch" href="https://fonts.googleapis.com" ><link rel="preconnect" href="https://cdn.jsdelivr.net" ><link rel="dns-prefetch" href="https://cdn.jsdelivr.net" ><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato&family=Source+Sans+Pro:wght@400;600;700;900&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css"><link rel="stylesheet" href="/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tocbot@4.20.1/dist/tocbot.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/magnific-popup@1/dist/magnific-popup.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get MODE_ATTR() { return "data-mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } static get ID() { return "mode-toggle"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } let self = this; /* always follow the system prefers */ this.sysDarkPrefers.addEventListener('change', () => { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.notify(); }); } /* constructor() */ get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode === ModeToggle.DARK_MODE; } get isLightMode() { return this.mode === ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer)) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } setDark() { $('html').attr(ModeToggle.MODE_ATTR, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_ATTR, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_ATTR); sessionStorage.removeItem(ModeToggle.MODE_KEY); } /* Notify another plugins that the theme mode has changed */ notify() { window.postMessage({ direction: ModeToggle.ID, message: this.modeStatus }, "*"); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.notify(); } /* flipMode() */ } /* ModeToggle */ const modeToggle = new ModeToggle(); </script><body data-topbar-visible="true"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/" class="mx-auto"> <img src="https://avatars.githubusercontent.com/u/39724294" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title"> <a href="/">Hungdv98</a></div><div class="site-subtitle font-italic">Software Developer</div></div><ul class="w-100"><li class="nav-item"> <a href="/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tag ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info-circle ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center align-items-center"> <button class="mode-toggle btn" aria-label="Switch Mode"> <i class="fas fa-adjust"></i> </button> <span class="icon-border"></span> <a href="https://github.com/hungdv98" aria-label="github" target="_blank" rel="noopener noreferrer"> <i class="fab fa-github"></i> </a> <a href="javascript:location.href = 'mailto:' + ['packetloss0709','gmail.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="https://www.linkedin.com/in/viet-hung-dang-884683201/" aria-label="linkedin" target="_blank" rel="noopener noreferrer"> <i class="fab fa-linkedin"></i> </a></div></div><div id="topbar-wrapper"><div id="topbar" class="container d-flex align-items-center justify-content-between h-100 pl-3 pr-3 pl-md-4 pr-md-4"> <span id="breadcrumb"> <span> <a href="/"> Home </a> </span> <span>Rust Toolchains and Project Structures</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" autocomplete="off" placeholder="Search..."> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper" class="d-flex justify-content-center"><div id="main" class="container pl-xl-4 pr-xl-4"><div class="row"><div id="core-wrapper" class="col-12 col-lg-11 col-xl-9 pr-xl-4"><div class="post pl-1 pr-1 pl-md-2 pr-md-2"><h1 data-toc-skip>Rust Toolchains and Project Structures</h1><div class="post-meta text-muted"> <span> Posted <em class="" data-ts="1769014800" data-df="ll" data-toggle="tooltip" data-placement="bottom"> Jan 22, 2026 </em> </span> <span> Updated <em class="" data-ts="1769101854" data-df="ll" data-toggle="tooltip" data-placement="bottom"> Jan 23, 2026 </em> </span><div class="d-flex justify-content-between"> <span> By <em> <a href="https://github.com/hungdv98">Dang Viet Hung</a> </em> </span><div> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="2317 words"> <em>12 min</em> read</span></div></div></div><div class="post-content"><h1 id="key-outcomes">Key outcomes:</h1><ul><li>Choosing right configuration of Rust<li>Cargo introduction and project structure<li>Cargo build management<li>Cargo dependencies<li>Writing test scripts and doing automated unit and integration testing<li>Automating the generation of technical document</ul><h2 id="i-choosing-right-configuration"><span class="mr-2">I. Choosing right configuration</span><a href="#i-choosing-right-configuration" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p>A toolchain is a combination of a release channel and a host, and optionally also has an associated archive date.</p><h3 id="1-rust-release-channel"><span class="mr-2">1. Rust release channel</span><a href="#1-rust-release-channel" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><ul><li><code class="language-plaintext highlighter-rouge">stable</code>: for production use<li><code class="language-plaintext highlighter-rouge">beta</code>: interim stage to verify that there isn’t any regression in Rust language releases before they are marked <code class="language-plaintext highlighter-rouge">stable</code><li><code class="language-plaintext highlighter-rouge">nightly</code>: for experimental features</ul><hr /><p>To install nightly Rust, use command:</p><p><code class="language-plaintext highlighter-rouge">rustup toolchain install nightly</code></p><p>To active nightly Rust globally, use command:</p><p><code class="language-plaintext highlighter-rouge">rustup default nightly</code></p><p>To active nightly at a directory level, use command:</p><p><code class="language-plaintext highlighter-rouge">rustup override set nightly</code></p><p>To get the version of the compiler in nightly Rust, use command:</p><p><code class="language-plaintext highlighter-rouge">rustup run nightly rustc --version</code></p><p>To reset <code class="language-plaintext highlighter-rouge">rustup</code> to use the stable channel, use command:</p><p><code class="language-plaintext highlighter-rouge">rustup default stable</code></p><p>To show the installed toolchains and which is currently active, use command:</p><p><code class="language-plaintext highlighter-rouge">rustup show</code></p><p>To update the installed toolchains to the latest versions, use command:</p><p><code class="language-plaintext highlighter-rouge">rustup update</code></p><hr /><h3 id="2-rust-project-type"><span class="mr-2">2. Rust project type</span><a href="#2-rust-project-type" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><ul><li>libraries:<ul><li><strong>library crate</strong> (or <strong>lib crate</strong>)<li>can be published to a public package repository (crates.io)<li>library crate begins in the <strong>src/lib.rs</strong> file</ul><li>binaries<ul><li><strong>binary crate</strong> (or <strong>bin crate</strong>)<li>standalone executable: download or link other libraries into a single binary<li>binary crate starts in the main() function in <strong>src/main.rs</strong></ul></ul><h2 id="ii-project-structure"><span class="mr-2">II. Project structure</span><a href="#ii-project-structure" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><ul><li><strong>Workspace</strong>: 1..n packages<li><strong>Package</strong>: 0..1 library, 0..n binary, but minimum 1 crate<li><strong>Crate</strong>: 0..n modules<li><strong>Module</strong>: 1..n source files<li><strong>Source file</strong>: 0..n functions</ul><h2 id="iii-cargo-build-management"><span class="mr-2">III. Cargo build management</span><a href="#iii-cargo-build-management" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><h3 id="1-building-basic-binary-crate"><span class="mr-2">1. Building basic binary crate</span><a href="#1-building-basic-binary-crate" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p><code class="language-plaintext highlighter-rouge">cargo new --bin bin-program &amp;&amp; cd bin-program</code></p><ul><li><code class="language-plaintext highlighter-rouge">--bin</code> flag is to tell Cargo to generate a package that, when compiled, would produce a binary crate (executable)<li><code class="language-plaintext highlighter-rouge">bin-program</code> is the name of the package given</ul><p><code class="language-plaintext highlighter-rouge">Cargo.toml</code>:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre>[package]
+name = "bin-program"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">src/main.rs</code>:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre>fn main() {
+    println!("Hello, world!");
+}
+</pre></table></code></div></div><p>To generate a binary crate (or executable) from this package, run command:</p><p><code class="language-plaintext highlighter-rouge">cargo build</code></p><p>Execute the following from the command line:</p><p><code class="language-plaintext highlighter-rouge">cargo run</code></p><p>Result:</p><p><code class="language-plaintext highlighter-rouge">Hello, world!</code></p><hr /><p>By default, the name of the crate binary crate (executable) generated is the same as the name of the source package. If you wish to change the name of the binary, add the following lines to <code class="language-plaintext highlighter-rouge">Cargo.toml</code>:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre>[[bin]]
+name = "bin-program"
+path = "src/main.rs
+</pre></table></code></div></div><p>Run the following in the command line:</p><p><code class="language-plaintext highlighter-rouge">cargo run --bin bin-program</code></p><p>Resutl:</p><p><code class="language-plaintext highlighter-rouge">Hello, world!</code></p><p>A cargo package can contain the source for multiple binaries. Add a new <strong>[[bin]]</strong> target below the first one:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre>[[bin]]
+name = "bin-program"
+path = "src/main.rs"
+
+[[bin]]
+name = "second-bin-program"
+path = "src/second-main.rs"
+</pre></table></code></div></div><p>Add to <code class="language-plaintext highlighter-rouge">second-main.rs</code>:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre>fn main(){
+	println!("Hello, for the second time!")
+}
+</pre></table></code></div></div><p>Run following:</p><p><code class="language-plaintext highlighter-rouge">cargo run --bin second-bin-program</code></p><p>Result:</p><p><code class="language-plaintext highlighter-rouge">Hello, for the second time!</code></p><hr /><p><strong>Configuring Cargo</strong></p><p>A cargo package has an associated <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file, which is also called the <code class="language-plaintext highlighter-rouge">manifest</code>.</p><ul><li><p><code class="language-plaintext highlighter-rouge">Specifying output targets for the package</code>: <code class="language-plaintext highlighter-rouge">5 types</code> of targets:</p><ul><li><code class="language-plaintext highlighter-rouge">[ [bin] ]</code>: A binary target is an executable program that can be run after it is built.<li><code class="language-plaintext highlighter-rouge">[lib]</code>: A library target produces a library that can be used by other libraries and executables.<li><code class="language-plaintext highlighter-rouge">[ [examples] ]</code>: This target is useful for libraries to demonstrate the use of external APIs to users through example code. The example source code located in the <code class="language-plaintext highlighter-rouge">example</code> directory can be built into executable binaries using this target.<li><code class="language-plaintext highlighter-rouge">[ [test] ]</code>: Files located in the <code class="language-plaintext highlighter-rouge">tests</code> directory represent integration tests and each of these can be compiled into a separate executable binary.<li><code class="language-plaintext highlighter-rouge">[ [bench] ]</code>: Benchmark functions defined in libraries and binaries are compiled into separate executables.</ul><li><code class="language-plaintext highlighter-rouge">Specifying dependencies for the package</code>: The source files in a package may depend on other internal or external libraries, which are also called <code class="language-plaintext highlighter-rouge">dependencies</code>. Each of these in turn may depend on other libraries and so on. Cargo downloads the list of dependencies specified under this section and links them to the final output targets<ul><li><code class="language-plaintext highlighter-rouge">[dependencies]</code>: Package library or binary dependencies<li><code class="language-plaintext highlighter-rouge">[dev-dependencies]</code>: Dependencies for examples, tests, and benchmarks<li><code class="language-plaintext highlighter-rouge">[build-dependencies]</code>: Dependencies for build scripts (if any are specified)<li><code class="language-plaintext highlighter-rouge">[target]</code>: This is for the cross-compilation of code for various target architectures. Note that this is not to be confused with the output targets of the package, which can be lib, bin, and so on.</ul><li><code class="language-plaintext highlighter-rouge">Specifying build profiles</code>: <code class="language-plaintext highlighter-rouge">4 types</code> of profiles that can be specified while building a cargo package:<ul><li><code class="language-plaintext highlighter-rouge">dev</code>: The <code class="language-plaintext highlighter-rouge">cargo build</code> command uses the <code class="language-plaintext highlighter-rouge">dev</code> profile by default. Packages built with this option are optimized for compile-time speed.<li><code class="language-plaintext highlighter-rouge">release</code>: The <code class="language-plaintext highlighter-rouge">cargo build --release</code> command enables the release profile, which is suitable for production release, and is optimized for runtime speed.<li><code class="language-plaintext highlighter-rouge">test</code>: The <code class="language-plaintext highlighter-rouge">cargo test</code> command uses this profile. This is used to build test executables.<li><code class="language-plaintext highlighter-rouge">bench</code>: The <code class="language-plaintext highlighter-rouge">cargo bench</code> command creates the benchmark executable, which automatically runs all functions annotated with <code class="language-plaintext highlighter-rouge">#[bench]</code> attribute.</ul><li><code class="language-plaintext highlighter-rouge">Specifying the package as a workspace</code>: A workspace is a unit of organization where multiple packages can be grouped together into a project and is useful to save disk space and compilation time when there are shared dependencies across a set of related packages. The <code class="language-plaintext highlighter-rouge">[workspace]</code> section can be used to define the list of package that are part of the workspace.</ul><h3 id="2-building-a-static-library-crate"><span class="mr-2">2. Building a static library crate</span><a href="#2-building-a-static-library-crate" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p><code class="language-plaintext highlighter-rouge">cargo new --lib lib-program</code></p><p>Add the following code to <code class="language-plaintext highlighter-rouge">src/lib.rs</code></p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre>pub fn hello_from_lib(message: &amp;str) {
+    println!("Printing Hello {} from library",message);
+}
+</pre></table></code></div></div><p>Run <code class="language-plaintext highlighter-rouge">cargo build</code></p><p>Create new <code class="language-plaintext highlighter-rouge">bin/new_main.rs</code> inside <code class="language-plaintext highlighter-rouge">src</code> then add to new_main.rs:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre>use lib_program::hello_from_lib;
+
+fn main(){
+	println!("Going to call library function");
+	hello_from_lib("Rust system programmer");
+}
+</pre></table></code></div></div><p>Run <code class="language-plaintext highlighter-rouge">cargo run --bin new_main</code></p><p>Result:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>Going to call library function
+Printing Hello Rust system programmer from library
+</pre></table></code></div></div><p>If you want to place <code class="language-plaintext highlighter-rouge">new_main.rs</code> file in another location (instead of within <code class="language-plaintext highlighter-rouge">src/bin</code>), then add a target in <code class="language-plaintext highlighter-rouge">Cargo.toml</code> and mention the name and path of the binary as shown in the following example, and move <code class="language-plaintext highlighter-rouge">new_main.rs</code> file to the specified location:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre>[[bin]]
+name = "new_main"
+path = "/src/new_main.rs"
+</pre></table></code></div></div><p>Run <code class="language-plaintext highlighter-rouge">cargo run --bin new_main</code></p><h2 id="iv-cargo-dependencies"><span class="mr-2">IV. Cargo dependencies</span><a href="#iv-cargo-dependencies" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><h3 id="1-dependency-management"><span class="mr-2">1. Dependency management</span><a href="#1-dependency-management" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p><code class="language-plaintext highlighter-rouge">cargo new deps-example &amp;&amp; cd deps-example</code></p><p>In <code class="language-plaintext highlighter-rouge">Cargo.toml</code>, add:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>[dependencies]
+chrono = "0.4.0"
+</pre></table></code></div></div><ul><li><p><code class="language-plaintext highlighter-rouge">Chrono</code> is a datetime library. This is called a dependency because our <code class="language-plaintext highlighter-rouge">deps-example</code> crate depends on this external library for its functionality.</p><li><p>When you run <code class="language-plaintext highlighter-rouge">cargo build</code>, cargo looks for a crate on <code class="language-plaintext highlighter-rouge">crates.io</code> with this name and version. If found, it downloads this crate along with all of its dependencies, compiles them all, and updates a file called <code class="language-plaintext highlighter-rouge">Cargo.lock</code> with the exact versions of packages downloaded. The <code class="language-plaintext highlighter-rouge">Cargo.lock</code> file is a generated file and not meant for editing.</p><li><p>Each dependency in <code class="language-plaintext highlighter-rouge">Cargo.toml</code> is specified in a new line and takes the format <code class="language-plaintext highlighter-rouge">&lt;crate-name&gt; = "&lt;semantic-version-number&gt;"</code>. <code class="language-plaintext highlighter-rouge">Semantic versioning or Semver</code> has the form X.Y.Z, where X is the major version number, Y is the minor version, and Z is the path version.</p></ul><hr /><p><code class="language-plaintext highlighter-rouge">Specifying the location of a dependency</code>:</p><ul><li><code class="language-plaintext highlighter-rouge">crates.io registry</code>: This is the default option and all that is needed is to specify the package name and version string.<li><code class="language-plaintext highlighter-rouge">Alternative registry</code>: While crates.io is the default registry, Cargo provides the option to use an alternate registry. The registry name has to be configured in the <code class="language-plaintext highlighter-rouge">.cargo/config</code> file, and in Cargo.toml, an entry is to be made with the registry name, as shown in the example here:</ul><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>[dependencies]
+cratename = { version = "2.1", registry = "alternate-registry-name" }
+</pre></table></code></div></div><ul><li><code class="language-plaintext highlighter-rouge">Git repository</code>: A Git repo can be specified as the dependency:</ul><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>[dependencies]
+chrono = { git = "https://github.com/chronotope/chrono", branch = "master" }
+</pre></table></code></div></div><p>Cargo will get the repo at the branch and location specified, and look for its <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file in order to fetch its dependencies.</p><ul><li><p><code class="language-plaintext highlighter-rouge">Specify a local path</code>: Cargo supports path dependencies, which means the library can be a sub-crate within the main cargo package. While building the main cargo package, the sub-crates that have also been specified as dependencies will be built. But dependencies with only a path dependency cannot be uploaded to the <code class="language-plaintext highlighter-rouge">crates.io</code> public registry.</p><li><p><code class="language-plaintext highlighter-rouge">Multiple locations</code>: Cargo supports the option to specify bot a registry version and either a Git or path location. For local builds, the Git or path version is used, and the registry version will be used when the package is published to <code class="language-plaintext highlighter-rouge">crates.io</code></p></ul><p>Using dependent packages in source code</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre>use chrono::Utc;
+
+fn main() {
+    println!("Hello, time now is {:?}", Utc::now());
+}
+</pre></table></code></div></div><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre>fn main() {
+    println!("Hello, time now is {:?}, chrono::Utc::now());
+}
+</pre></table></code></div></div><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre>use chrono as time;
+fn main() {
+    println!("Hello, time now is {:?}", time::Utc::now());
+}
+</pre></table></code></div></div><h2 id="v-writing-and-running-automated-tests"><span class="mr-2">V. Writing and running automated tests</span><a href="#v-writing-and-running-automated-tests" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><h3 id="1-writing-unit-tests"><span class="mr-2">1. Writing unit tests</span><a href="#1-writing-unit-tests" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p><code class="language-plaintext highlighter-rouge">cargo new test-example &amp;&amp; cd test-example</code></p><p>Add to <code class="language-plaintext highlighter-rouge">src/main.rs</code></p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre>use std::process;
+
+fn main() {
+    println!("{}", get_process_id());
+}
+
+fn get_process_id() -&gt; u32 {
+    process::id()
+}
+
+#[test]
+fn test_if_process_id_is_returned() {
+    assert!(get_process_id() &gt; 0);
+}
+</pre></table></code></div></div><p>In order to tell the compiler that this is a test function, use <code class="language-plaintext highlighter-rouge">#[test]</code> annotation. The <code class="language-plaintext highlighter-rouge">assert!</code> macro (available in standard Rust library) is used to check whether a condition evaluates to true. There are two other macros available, <code class="language-plaintext highlighter-rouge">assert_eq!</code> and <code class="language-plaintext highlighter-rouge">assert_ne!</code>, which are used to test whether the two arguments passed to these macros are equal or not.</p><p>A custom error message can also be specified:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre>#[test]
+fn test_if_process_id_is_returned() {
+    assert_ne!(get_process_id(), 0, "There is error in code");
+}
+</pre></table></code></div></div><p>To compile but not run the tests, use the <code class="language-plaintext highlighter-rouge">--no-run</code> option with <code class="language-plaintext highlighter-rouge">cargo test</code> command.</p><p>In order to provide more modularity and to address the preceding questions, it is idiomatic in Rust to group test functions in a <code class="language-plaintext highlighter-rouge">test</code> module:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre>#[cfg(test)]
+mod tests {
+    use super::get_process_id;
+    #[test]
+    fn test_if_process_id_is_returned() {
+        assert_ne!(get_process_id(), 0, "There is error in code");
+    }
+}
+</pre></table></code></div></div><h3 id="2-writing-integration-tests"><span class="mr-2">2. Writing integration tests</span><a href="#2-writing-integration-tests" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p><code class="language-plaintext highlighter-rouge">cargo new --lib integ-test-example</code></p><p>Create <code class="language-plaintext highlighter-rouge">tests</code> folder same level with <code class="language-plaintext highlighter-rouge">src</code> then add <code class="language-plaintext highlighter-rouge">integration_test1.rs</code>:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre>use integ_test_example;
+
+#[test]
+fn files_test1() {
+ 	assert_ne!(integ_test_example::get_process_id(),0,"Error
+ in code");
+}
+
+#[test]
+fn files_test2() {
+ 	assert_eq!(1+1, 2);
+}
+
+#[test]
+fn process_test1() {
+ 	assert!(true);
+}
+</pre></table></code></div></div><p>Run <code class="language-plaintext highlighter-rouge">cargo test</code></p><p>Ignore test by adding <code class="language-plaintext highlighter-rouge">#[ignore]</code></p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre>#[test]
+#[ignore]
+fn process_test1() {
+    assert!(true);
+}
+</pre></table></code></div></div><hr /><p>Running tests sequentially or in parallel:</p><p><code class="language-plaintext highlighter-rouge">cargo test -- --test-threads=1</code></p><hr /><h2 id="v-document"><span class="mr-2">V. Document</span><a href="#v-document" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p>The following are some aspects of a crate that it would be useful to document:</p><ul><li>An overall short description of what your Rust library does<li>A list of modules and public functions in the library<li>A list of other items, such as <code class="language-plaintext highlighter-rouge">traits, macros, structs, enums</code> and <code class="language-plaintext highlighter-rouge">typedefs</code>, that a public user of the library needs to be familiar with to use various features<li>For binary crates, installation instruction and command-line parameters<li>Examples that demostrate to users how to use the crate<li>Optionally, design details for the crate</ul><p><code class="language-plaintext highlighter-rouge">2 ways</code> to document:</p><ul><li>Inline documentation comments within the crate<li>Separate markdown files</ul><p><code class="language-plaintext highlighter-rouge">rustdoc</code> tool will convert them into HTML, CSS, and JavaScript code that can be viewed from a browser.</p><h3 id="1-writing-inline-documentation-comments-within-crate"><span class="mr-2">1. Writing inline documentation comments within crate</span><a href="#1-writing-inline-documentation-comments-within-crate" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p>Rust has 2 types of comments:</p><ul><li><code class="language-plaintext highlighter-rouge">code comments</code>: aimed at developers<li><code class="language-plaintext highlighter-rouge">documentation comments</code>: aimed at users of the library/crate</ul><p>Code comments are written using:</p><ul><li><code class="language-plaintext highlighter-rouge">//</code> for single-line comments and writing inline documentation comments within crate<li><code class="language-plaintext highlighter-rouge">/* */</code> for multi-line comments</ul><p>Documentation comments are written using 2 styles:</p><ul><li><code class="language-plaintext highlighter-rouge">///</code> for commenting on individual items that follow the comments. Markdown notation can be used to style the comments (for example, bold or italic). This is typically used for item-level documentation.<li><code class="language-plaintext highlighter-rouge">//!</code> : this is used to add documentation for the item that contains these comments (as opposed to the first style, which is used to comment items that follow the comments). This is typically used for crate-level documentation.</ul><p>In both cases, <code class="language-plaintext highlighter-rouge">rustdoc</code> extracts documentation from the crate’s documentation comments.</p><p>Add the following comments to the <code class="language-plaintext highlighter-rouge">integ-test-example</code> in <code class="language-plaintext highlighter-rouge">lib.rs</code>:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre>//! This is a library that contains functions related to
+//! dealing with processes,
+//! and makes these tasks more convenient.
+
+use std::process;
+
+/// This function gets the process ID of the current
+/// executable. It returns a non-zero number
+pub fn get_process_id() -&gt; u32 {
+    process::id()
+}
+</pre></table></code></div></div><p>Run <code class="language-plaintext highlighter-rouge">cargo doc --open</code></p><h3 id="2-writing-documentation-in-markdown-files"><span class="mr-2">2. Writing documentation in markdown files</span><a href="#2-writing-documentation-in-markdown-files" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p>Create folder <code class="language-plaintext highlighter-rouge">doc</code> same level with <code class="language-plaintext highlighter-rouge">src</code> then add <code class="language-plaintext highlighter-rouge">itest.md</code> file:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre><td class="rouge-code"><pre># Docs for integ-test-example crate
+
+This is a project to test `rustdoc`
+
+[Here is a link!](https://www.rust-lang.org)
+
+// Function signature
+
+pub fn get_process_id() -&gt; u32 {}
+
+This function returns the process ID of the currently running executable:
+
+// Example
+
+```rust
+use integ_test_example;
+
+fn get_id() -&gt; i32 {
+	let my_pid = get_process_id();
+	println!("Process id for current process is: {}", my_pid);
+}
+</pre></table></code></div></div><p>Run <code class="language-plaintext highlighter-rouge">rustdoc doc/itest.md</code></p><h3 id="3-running-documentation-tests"><span class="mr-2">3. Running documentation tests</span><a href="#3-running-documentation-tests" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3><p>Add to <code class="language-plaintext highlighter-rouge">src/lib.rs</code>:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre>//! Integration-test-example crate
+//!
+//! This is a library that contains functions related to
+//! dealing with processes
+//! , and makes these tasks more convenient.
+use std::process;
+/// This function gets the process id of the current
+/// executable. It returns a non-zero number
+/// ```
+/// fn get_id() {
+/// let x = integ_test_example::get_process_id();
+/// println!("{}",x);
+/// }
+/// ```
+pub fn get_process_id() -&gt; u32 {
+ process::id()
+}
+</pre></table></code></div></div><p>Run <code class="language-plaintext highlighter-rouge">cargo test --doc</code></p><p>Alternatively, running <code class="language-plaintext highlighter-rouge">cargo test</code> will run all the test cases from the <code class="language-plaintext highlighter-rouge">tests</code> directory (except those that are marked as ignored), and then run the documentation tests.</p><h1 id="references">[References]</h1><ul><li><strong>Practical System Programming for Rust Developers</strong> - Chapter 1: “Tools of the Trade - Rust Toolchains and Project Structures”</ul></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/rust/'>Rust</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/programming/" class="post-tag no-text-decoration" >programming</a> <a href="/tags/coding/" class="post-tag no-text-decoration" >coding</a> <a href="/tags/rust/" class="post-tag no-text-decoration" >rust</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/"> CC BY 4.0 </a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Rust%20Toolchains%20and%20Project%20Structures%20-%20Hungdv98&url=https%3A%2F%2Fhungdv98.github.io%2Fposts%2F20260122%2F" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Rust%20Toolchains%20and%20Project%20Structures%20-%20Hungdv98&u=https%3A%2F%2Fhungdv98.github.io%2Fposts%2F20260122%2F" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://www.linkedin.com/in/viet-hung-dang-884683201/" data-toggle="tooltip" data-placement="top" title="Linkedin" target="_blank" rel="noopener" aria-label="Linkedin"> <i class="fa-fw fab fa-linkedin"></i> </a> <i id="copy-link" class="fa-fw fas fa-link small" data-toggle="tooltip" data-placement="top" title="Copy link" data-title-succeed="Link copied successfully!"> </i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted"><div class="access"><div id="access-lastmod" class="post"><div class="panel-heading">Recently Updated</div><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/posts/20260122/">Rust Toolchains and Project Structures</a><li><a href="/posts/20230128/">20230128</a><li><a href="/posts/20230101/">20230101</a><li><a href="/posts/20220501/">20220501</a></ul></div><div id="access-tags"><div class="panel-heading">Trending Tags</div><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/a6400/">a6400</a> <a class="post-tag" href="/tags/135gm/">135gm</a> <a class="post-tag" href="/tags/sigma56/">sigma56</a> <a class="post-tag" href="/tags/50f1-4ais/">50f1.4ais</a> <a class="post-tag" href="/tags/nikon-fm2n/">nikon fm2n</a> <a class="post-tag" href="/tags/a7iv/">a7iv</a> <a class="post-tag" href="/tags/kodak-vision-3-500t/">kodak vision 3 500T</a> <a class="post-tag" href="/tags/35gm/">35gm</a> <a class="post-tag" href="/tags/coding/">coding</a> <a class="post-tag" href="/tags/fuji-400/">fuji 400</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"><div class="panel-heading pl-3 pt-2 mb-2">Contents</div><nav id="toc"></nav></div><script src="https://cdn.jsdelivr.net/npm/tocbot@4.20.1/dist/tocbot.min.js"></script></div></div><div class="row"><div id="tail-wrapper" class="col-12 col-lg-11 col-xl-9 pl-3 pr-3 pr-xl-4 mt-5"><div id="related-posts" class="mb-2 mb-sm-4"><h3 class="pt-2 mb-4 ml-1" data-toc-skip>Further Reading</h3><div class="card-deck mb-4"><div class="card"> <a href="/posts/20250531/"><div class="card-body"> <em class="small" data-ts="1748624400" data-df="ll" > May 31, 2025 </em><h3 class="pt-0 mt-1 mb-3" data-toc-skip>20250531</h3><div class="text-muted small"><p></p></div></div></a></div><div class="card"> <a href="/posts/20250308/"><div class="card-body"> <em class="small" data-ts="1741366800" data-df="ll" > Mar 8, 2025 </em><h3 class="pt-0 mt-1 mb-3" data-toc-skip>20250308</h3><div class="text-muted small"><p></p></div></div></a></div><div class="card"> <a href="/posts/20240615/"><div class="card-body"> <em class="small" data-ts="1718384400" data-df="ll" > Jun 15, 2024 </em><h3 class="pt-0 mt-1 mb-3" data-toc-skip>20240615</h3><div class="text-muted small"><p></p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/posts/20250531/" class="btn btn-outline-primary" prompt="Older"><p>20250531</p></a><div class="btn btn-outline-primary disabled" prompt="Newer"><p>-</p></div></div></div></div></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><div id="access-tags"><div class="panel-heading">Trending Tags</div><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/a6400/">a6400</a> <a class="post-tag" href="/tags/135gm/">135gm</a> <a class="post-tag" href="/tags/sigma56/">sigma56</a> <a class="post-tag" href="/tags/50f1-4ais/">50f1.4ais</a> <a class="post-tag" href="/tags/nikon-fm2n/">nikon fm2n</a> <a class="post-tag" href="/tags/a7iv/">a7iv</a> <a class="post-tag" href="/tags/kodak-vision-3-500t/">kodak vision 3 500T</a> <a class="post-tag" href="/tags/35gm/">35gm</a> <a class="post-tag" href="/tags/coding/">coding</a> <a class="post-tag" href="/tags/fuji-400/">fuji 400</a></div></div></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><footer><div class="container pl-lg-4 pr-lg-4"><div class="d-flex justify-content-between align-items-center text-muted ml-md-3 mr-md-3"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/hungdv98">Dang Viet Hung</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div><div class="footer-right"><p class="mb-0">Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js"></script> <script> (function () { function updateMermaid(event) { if (event.source === window && event.data && event.data.direction === ModeToggle.ID) { const mode = event.data.message; if (typeof mermaid === "undefined") { return; } let expectedTheme = (mode === ModeToggle.DARK_MODE ? "dark" : "default"); let config = {theme: expectedTheme}; /* Re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function () { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } let initTheme = "default"; if ($("html[data-mode=dark]").length > 0 || ($("html[data-mode]").length == 0 && window.matchMedia("(prefers-color-scheme: dark)").matches)) { initTheme = "dark"; } let mermaidConf = { theme: initTheme /* <default|dark|forest|neutral> */ }; /* Create mermaid tag */ $("pre").has("code.language-mermaid").each(function () { let svgCode = $(this).children().html(); $(this).addClass("unloaded"); $(this).after(`<pre class=\"mermaid\">${svgCode}</pre>`); }); mermaid.initialize(mermaidConf); window.addEventListener("message", updateMermaid); })(); </script><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.10.0/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script> <script src="https://cdn.jsdelivr.net/combine/npm/magnific-popup@1/dist/jquery.magnific-popup.min.js,npm/lazysizes@5.3.2/lazysizes.min.js,npm/clipboard@2/dist/clipboard.min.js"></script> <script src="https://cdn.jsdelivr.net/combine/npm/dayjs@1/dayjs.min.js,npm/dayjs@1/locale/en.min.js,npm/dayjs@1/plugin/relativeTime.min.js,npm/dayjs@1/plugin/localizedFormat.min.js"></script> <script defer src="/assets/js/dist/post.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.bundle.min.js"></script> <script defer src="/unregister.js"></script>
